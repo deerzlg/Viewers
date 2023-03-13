@@ -553,6 +553,7 @@ function _checkForCachedJumpToMeasurementEvents(
   const displaysUIDs = displaySets.map(
     displaySet => displaySet.displaySetInstanceUID
   );
+  if (!displaysUIDs?.length) return;
 
   const measurementIdToJumpTo = measurementService.getJumpToMeasurement(
     viewportIndex
@@ -564,7 +565,7 @@ function _checkForCachedJumpToMeasurementEvents(
       measurementIdToJumpTo
     );
 
-    if (displaysUIDs.includes(measurement.displaySetInstanceUID)) {
+    if (displaysUIDs.includes(measurement?.displaySetInstanceUID)) {
       _jumpToMeasurement(
         measurement,
         elementRef,
