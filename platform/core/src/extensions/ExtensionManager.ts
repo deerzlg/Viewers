@@ -283,9 +283,9 @@ export default class ExtensionManager {
             // Default for most extension points,
             // Just adds each entry ready for consumption by mode.
             extensionModule.forEach(element => {
-              const id = `${extensionId}.${moduleType}.${element.name}`;
-              element.id = id;
-              this.modulesMap[id] = element;
+              this.modulesMap[
+                `${extensionId}.${moduleType}.${element.name}`
+              ] = element;
             });
             break;
           default:
