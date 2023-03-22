@@ -1,11 +1,12 @@
 import React from 'react';
 import getSopClassHandlerModule from './getSopClassHandlerModule';
 import onModeEnter from './onModeEnter';
-import commandsModule from './commandsModule';
-import init from './init';
+import getCommandsModule from './commandsModule';
+import preRegistration from './init';
 import { id } from './id.js';
 import toolNames from './tools/toolNames';
 import hydrateStructuredReport from './utils/hydrateStructuredReport';
+import createReferencedImageDisplaySet from './utils/createReferencedImageDisplaySet';
 
 const Component = React.lazy(() => {
   return import(
@@ -31,9 +32,7 @@ const dicomSRExtension = {
   id,
   onModeEnter,
 
-  preRegistration({ servicesManager, configuration = {} }) {
-    init({ servicesManager, configuration });
-  },
+  preRegistration,
 
   /**
    *
@@ -54,13 +53,7 @@ const dicomSRExtension = {
 
     return [{ name: 'dicom-sr', component: ExtendedOHIFCornerstoneSRViewport }];
   },
-  getCommandsModule({ servicesManager, commandsManager, extensionManager }) {
-    return commandsModule({
-      servicesManager,
-      commandsManager,
-      extensionManager,
-    });
-  },
+  getCommandsModule,
   getSopClassHandlerModule,
 
   // Include dynmically computed values such as toolNames not known till instantiation
@@ -79,4 +72,4 @@ const dicomSRExtension = {
 export default dicomSRExtension;
 
 // Put static exports here so they can be type checked
-export { hydrateStructuredReport, };
+export { hydrateStructuredReport, createReferencedImageDisplaySet };
