@@ -62,6 +62,8 @@ const dicomSRExtension = {
     });
   },
   getSopClassHandlerModule,
+
+  // Include dynmically computed values such as toolNames not known till instantiation
   getUtilityModule({ servicesManager }) {
     return [
       {
@@ -75,4 +77,6 @@ const dicomSRExtension = {
 };
 
 export default dicomSRExtension;
-export { hydrateStructuredReport };
+
+// Put static exports here so they can be type checked
+export { hydrateStructuredReport, };
