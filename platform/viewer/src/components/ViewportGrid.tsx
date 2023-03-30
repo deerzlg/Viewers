@@ -199,6 +199,8 @@ function ViewerViewportGrid(props) {
         }
 
         updatedViewports.forEach(vp => {
+          // SR viewports can sometimes be setup initially without options.
+          if (!vp.viewportOptions) return;
           const { orientation, viewportType } = vp.viewportOptions;
           let initialImageOptions;
 
