@@ -1,5 +1,8 @@
 import React from 'react';
 import getSopClassHandlerModule from './getSopClassHandlerModule';
+import getHangingProtocolModule, {
+  srProtocol,
+} from './getHangingProtocolModule';
 import onModeEnter from './onModeEnter';
 import getCommandsModule from './commandsModule';
 import preRegistration from './init';
@@ -55,6 +58,7 @@ const dicomSRExtension = {
   },
   getCommandsModule,
   getSopClassHandlerModule,
+  getHangingProtocolModule,
 
   // Include dynmically computed values such as toolNames not known till instantiation
   getUtilityModule({ servicesManager }) {
@@ -72,4 +76,4 @@ const dicomSRExtension = {
 export default dicomSRExtension;
 
 // Put static exports here so they can be type checked
-export { hydrateStructuredReport, createReferencedImageDisplaySet };
+export { hydrateStructuredReport, createReferencedImageDisplaySet, srProtocol };
