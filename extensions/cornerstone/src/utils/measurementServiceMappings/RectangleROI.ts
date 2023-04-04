@@ -3,8 +3,10 @@ import getSOPInstanceAttributes from './utils/getSOPInstanceAttributes';
 import getModalityUnit from './utils/getModalityUnit';
 import { utils } from '@ohif/core';
 
+import { utilities as csUtils } from '@cornerstonejs/core';
+
 const RectangleROI = {
-  toAnnotation: measurement => { },
+  toAnnotation: measurement => {},
   toMeasurement: (
     csToolsEventDetail,
     DisplaySetService,
@@ -56,7 +58,12 @@ const RectangleROI = {
 
     const displayText = getDisplayText(mappedAnnotations, displaySet);
     const getReport = () =>
-      _getReport(mappedAnnotations, points, FrameOfReferenceUID);
+      _getReport(
+        mappedAnnotations,
+        points,
+        FrameOfReferenceUID,
+        referencedImageId
+      );
 
     return {
       uid: annotationUID,
@@ -137,13 +144,18 @@ This function is used to convert the measurement data to a format that is
 suitable for the report generation (e.g. for the csv report). The report
 returns a list of columns and corresponding values.
 */
-function _getReport(mappedAnnotations, points, FrameOfReferenceUID) {
+function _getReport(
+  mappedAnnotations,
+  points,
+  FrameOfReferenceUID,
+  referencedImageId
+) {
   const columns = [];
   const values = [];
 
   // Add Type
   columns.push('AnnotationType');
-  values.push('Cornerstone:EllipticalROI');
+  values.push('Cornerstone:RectangleROI');
 
   mappedAnnotations.forEach(annotation => {
     const { mean, stdDev, max, area, unit } = annotation;
@@ -172,6 +184,15 @@ function _getReport(mappedAnnotations, points, FrameOfReferenceUID) {
     // convert it to string of [[x1 y1 z1];[x2 y2 z2];...]
     // so that it can be used in the csv report
     values.push(points.map(p => p.join(' ')).join(';'));
+  }
+
+  const imagePoints = [];
+  for (let i = 0; i < points.length; ++i) {
+    imagePoints.push(csUtils.worldToImageCoords(referencedImageId, points[i]));
+  }
+  if (imagePoints) {
+    columns.push('imagePoints');
+    values.push(imagePoints.map(p => p.join(' ')).join(';'));
   }
 
   return {
