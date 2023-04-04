@@ -6,6 +6,7 @@ import {
   Dialog,
   Input,
   useViewportGrid,
+  Button,
 } from '@ohif/ui';
 import { DicomMetadataStore, utils } from '@ohif/core';
 import { useDebounce } from '@hooks';
@@ -13,7 +14,7 @@ import ActionButtons from './ActionButtons';
 import { useTrackedMeasurements } from '../../getContextModule';
 import debounce from 'lodash.debounce';
 
-const { downloadCSVReport } = utils;
+const { downloadCSVReport, downloadJSONReport } = utils;
 const { formatDate } = utils;
 
 const DISPLAY_STUDY_SUMMARY_INITIAL_VALUE = {
@@ -144,7 +145,18 @@ function PanelMeasurementTableTracking({ servicesManager, extensionManager }) {
     };
   }, [measurementService, sendTrackedMeasurementsEvent]);
 
-  async function exportReport() {
+  async function exportJSONReport() {
+    const measurements = measurementService.getMeasurements();
+    const trackedMeasurements = measurements.filter(
+      m =>
+        trackedStudy === m.referenceStudyUID &&
+        trackedSeries.includes(m.referenceSeriesUID)
+    );
+
+    downloadJSONReport(trackedMeasurements, measurementService);
+  }
+
+  async function exportCSVReport() {
     const measurements = measurementService.getMeasurements();
     const trackedMeasurements = measurements.filter(
       m =>
@@ -159,6 +171,56 @@ function PanelMeasurementTableTracking({ servicesManager, extensionManager }) {
     measurementService.jumpToMeasurement(viewportGrid.activeViewportIndex, uid);
 
     onMeasurementItemClickHandler({ uid, isActive });
+  };
+
+  const onExportClickHandler = () => {
+    const _handleExportSubmit = () => {
+      uiDialogService.dismiss({ id: 'export-format' });
+    };
+
+    uiDialogService.create({
+      id: 'export-format',
+      centralize: true,
+      isDraggable: false,
+      showOverlay: true,
+      content: Dialog,
+      contentProps: {
+        title: 'Select the export format',
+        noCloseButton: true,
+        body: () => {
+          return (
+            <div className="p-6 space-x-6 bg-primary-dark">
+              <Button
+                className="text-base px-3 py-2"
+                size="initial"
+                color="light"
+                border="primaryActive"
+                onClick={() => {
+                  exportCSVReport();
+                  _handleExportSubmit();
+                }}
+              >
+                {'CSV Report'}
+              </Button>
+              <Button
+                className="text-base px-3 py-2"
+                size="initial"
+                color="light"
+                border="primaryActive"
+                onClick={() => {
+                  exportJSONReport();
+                  _handleExportSubmit();
+                }}
+              >
+                {'JSON Report'}
+              </Button>
+            </div>
+          );
+        },
+        actions: [{ id: 'cancel', text: 'Cancel', type: 'primary' }],
+        onSubmit: _handleExportSubmit,
+      },
+    });
   };
 
   const onMeasurementItemEditHandler = ({ uid, isActive }) => {
@@ -278,7 +340,7 @@ function PanelMeasurementTableTracking({ servicesManager, extensionManager }) {
       </div>
       <div className="flex justify-center p-4">
         <ActionButtons
-          onExportClick={exportReport}
+          onExportClick={onExportClickHandler}
           onCreateReportClick={() => {
             sendTrackedMeasurementsEvent('SAVE_REPORT', {
               viewportIndex: viewportGrid.activeViewportIndex,

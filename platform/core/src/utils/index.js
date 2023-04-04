@@ -24,6 +24,7 @@ import imageIdToURI from './imageIdToURI';
 import debounce from './debounce';
 import roundNumber from './roundNumber';
 import downloadCSVReport from './downloadCSVReport';
+import downloadJSONReport from './downloadJSONReport';
 import isEqualWithin from './isEqualWithin';
 import {
   sortStudy,
@@ -70,6 +71,7 @@ const utils = {
   debounce,
   roundNumber,
   downloadCSVReport,
+  downloadJSONReport,
   subscribeToNextViewportGridChange,
 };
 
@@ -100,6 +102,7 @@ export {
   debounce,
   roundNumber,
   downloadCSVReport,
+  downloadJSONReport,
 };
 
 export default utils;
