@@ -577,6 +577,20 @@ const toolbarButtons = [
           ],
           'Dicom Tag Browser'
         ),
+        _createActionButton(
+          //add measurement json import button
+          'ImportMeasurement',
+          'clipboard', //icons
+          'Import Measurements',
+          [
+            {
+              commandName: 'openJsonImportDialog',
+              commandOptions: {},
+              context: 'DEFAULT',
+            },
+          ],
+          'Import Measurements'
+        ),
       ],
     },
   },

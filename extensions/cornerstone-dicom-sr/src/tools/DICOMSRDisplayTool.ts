@@ -292,7 +292,7 @@ export default class DICOMSRDisplayTool extends AnnotationTool {
   renderEllipse(
     svgDrawingHelper,
     viewport,
-    renderableData,
+    renderableData, //world point array
     annotationUID,
     referencedImageId,
     options
@@ -312,7 +312,7 @@ export default class DICOMSRDisplayTool extends AnnotationTool {
       );
 
       const canvasCorners = <Array<Types.Point2>>(
-        utilities.math.ellipse.getCanvasEllipseCorners(canvasCoordinates)
+        utilities.math.ellipse.getCanvasEllipseCorners(canvasCoordinates) //get ellipse corners(TopLeft, BottomRight)
       );
 
       const lineUID = `${index}`;

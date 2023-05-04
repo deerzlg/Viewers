@@ -7,26 +7,38 @@ export default function downloadJSONReport(measurementData) {
     return;
   }
 
+  let tempMeasurementData = JSON.parse(JSON.stringify(measurementData)); //deep copy
+
   const downloadedImages = []; //to avoid downloading the same image twice
 
-  for (let i = 0; i < measurementData.length; ++i) {
-    //console.log(measurementData[i]);
-    measurementData[i].imagePoints = _transWorldToImage(
-      measurementData[i].points,
-      measurementData[i].metadata.referencedImageId
+  for (let i = 0; i < tempMeasurementData.length; ++i) {
+    tempMeasurementData[i].imagePoints = _transWorldToImage(
+      tempMeasurementData[i].points,
+      tempMeasurementData[i].metadata.referencedImageId
     );
-    if (downloadedImages.includes(measurementData[i].SOPInstanceUID)) {
+    //clean json data
+    delete tempMeasurementData[i].FrameOfReferenceUID;
+    delete tempMeasurementData[i].metadata.viewPlaneNormal;
+    delete tempMeasurementData[i].metadata.viewUp;
+    delete tempMeasurementData[i].referenceSeriesUID;
+    delete tempMeasurementData[i].referenceStudyUID;
+    delete tempMeasurementData[i].toolName;
+    delete tempMeasurementData[i].data;
+    delete tempMeasurementData[i].source;
+    delete tempMeasurementData[i].modifiedTimestamp;
+    delete tempMeasurementData[i].selected;
+
+    if (downloadedImages.includes(tempMeasurementData[i].SOPInstanceUID)) {
       continue;
     }
-    downloadedImages.push(measurementData[i].SOPInstanceUID);
-    const referencedImageId = measurementData[i].metadata.referencedImageId;
-    const regex = /wadors:(.*)/;
-    const wadoUrl = referencedImageId.match(regex)[1];
-
-    _downloadPngImage(wadoUrl, measurementData[i].SOPInstanceUID);
+    downloadedImages.push(tempMeasurementData[i].SOPInstanceUID);
+    const wadoUrl = csUtils.imageIdToURI(
+      tempMeasurementData[i].metadata.referencedImageId
+    ); //Removes the data loader scheme from the imageId
+    _downloadPngImage(wadoUrl, tempMeasurementData[i].SOPInstanceUID);
   }
 
-  const jsonDoc = JSON.stringify(measurementData);
+  const jsonDoc = JSON.stringify(tempMeasurementData);
   let jsonContent = 'data:text/json;charset=utf-8,' + jsonDoc;
 
   _createAndDownloadFile(jsonContent);

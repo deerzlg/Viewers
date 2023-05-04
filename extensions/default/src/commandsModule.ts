@@ -12,6 +12,11 @@ import findViewportsByPosition, {
 
 import { ContextMenuProps } from './CustomizeableContextMenu/types';
 
+import { Types, utilities as csUtils } from '@cornerstonejs/core';
+import { drawing, utilities } from '@cornerstonejs/tools';
+import getActiveViewportEnabledElement from '../../cornerstone/src/utils/getActiveViewportEnabledElement';
+import getSvgDrawingHelper from '@cornerstonejs/tools/dist/esm/drawingSvg/getSvgDrawingHelper';
+
 const { subscribeToNextViewportGridChange } = utils;
 
 export type HangingProtocolParams = {
@@ -500,6 +505,123 @@ const commandsModule = ({
       });
     },
 
+    openJsonImportDialog() {
+      let measurements = [];
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.click();
+      input.onchange = event => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = event => {
+          measurements = JSON.parse(event.target.result);
+
+          const enabledElement = getActiveViewportEnabledElement(
+            viewportGridService
+          );
+          // console.log('enabledElement:', enabledElement);
+          // console.log('enabledElement.viewport:', enabledElement.viewport);
+          // console.log(
+          //   'enabledElement.viewport.element',
+          //   enabledElement.viewport.element
+          // );
+          const activeViewport = enabledElement.viewport;
+          const svgDrawingHelper = getSvgDrawingHelper(activeViewport.element);
+          // console.log('svgDrawingHelper', svgDrawingHelper);
+          let index = 0;
+          let isMismatch = false;
+          measurements.forEach(measurement => {
+            if (
+              measurement.metadata.referencedImageId !==
+              activeViewport.csImage.imageId
+            ) {
+              isMismatch = true;
+              return; //foreach不能强制终止，return的效果类似循环中的continue
+            }
+            index++;
+            measurement.canvasCoordinates = measurement.points.map(p =>
+              activeViewport.worldToCanvas(p)
+            );
+            switch (measurement.metadata.toolName) {
+              case 'EllipticalROI': {
+                //get ellipse corners(TopLeft, BottomRight)
+                const canvasCorners = <Array<Types.Point2>>(
+                  utilities.math.ellipse.getCanvasEllipseCorners(
+                    measurement.canvasCoordinates
+                  )
+                );
+                drawing.drawEllipse(
+                  svgDrawingHelper,
+                  measurement.uid,
+                  `${index}`,
+                  canvasCorners[0],
+                  canvasCorners[1],
+                  { color: 'rgb(0, 255, 0)', width: 1.5 }
+                );
+                break;
+              }
+              case 'RectangleROI': {
+                drawing.drawRect(
+                  svgDrawingHelper,
+                  measurement.uid,
+                  `${index}`,
+                  measurement.canvasCoordinates[0],
+                  measurement.canvasCoordinates[3],
+                  { color: 'rgb(0, 255, 0)', width: 1.5 }
+                );
+                break;
+              }
+              case 'Length': {
+                drawing.drawLine(
+                  svgDrawingHelper,
+                  measurement.uid,
+                  `${index}`,
+                  measurement.canvasCoordinates[0],
+                  measurement.canvasCoordinates[1],
+                  { color: 'rgb(0, 255, 0)', width: 1.5 }
+                );
+                break;
+              }
+              case 'Angle': {
+                drawing.drawPolyline(
+                  svgDrawingHelper,
+                  measurement.uid,
+                  `${index}`,
+                  measurement.canvasCoordinates,
+                  { color: 'rgb(0, 255, 0)', width: 1.5 }
+                );
+                break;
+              }
+              case 'Bidirectional': {
+                drawing.drawLine(
+                  svgDrawingHelper,
+                  measurement.uid,
+                  `${index}`,
+                  measurement.canvasCoordinates[0],
+                  measurement.canvasCoordinates[1],
+                  { color: 'rgb(0, 255, 0)', width: 1.5 }
+                );
+                drawing.drawLine(
+                  svgDrawingHelper,
+                  csUtils.uuidv4(),
+                  `${index++}`,
+                  measurement.canvasCoordinates[2],
+                  measurement.canvasCoordinates[3],
+                  { color: 'rgb(0, 255, 0)', width: 1.5 }
+                );
+                break;
+              }
+            }
+          });
+          if (isMismatch) {
+            alert('There are measurements do not match the image!');
+          }
+        };
+      };
+    },
+
     /**
      * Toggle viewport overlay (the information panel shown on the four corners
      * of the viewport)
@@ -562,6 +684,10 @@ const commandsModule = ({
     },
     openDICOMTagViewer: {
       commandFn: actions.openDICOMTagViewer,
+    },
+    openJsonImportDialog: {
+      //load measurements from json file
+      commandFn: actions.openJsonImportDialog,
     },
   };
 
