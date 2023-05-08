@@ -624,6 +624,25 @@ const commandsModule = ({
                 );
                 break;
               }
+              case 'CircleROI': {
+                const radius = Math.sqrt(
+                  (measurement.canvasCoordinates[0][0] -
+                    measurement.canvasCoordinates[1][0]) **
+                    2 +
+                    (measurement.canvasCoordinates[0][1] -
+                      measurement.canvasCoordinates[1][1]) **
+                      2
+                );
+                drawing.drawCircle(
+                  svgDrawingHelper,
+                  measurement.uid,
+                  `${index}`,
+                  measurement.canvasCoordinates[0],
+                  radius,
+                  { color: 'rgb(0, 255, 0)', width: 1.5 }
+                );
+                break;
+              }
               case 'Bidirectional': {
                 drawing.drawLine(
                   svgDrawingHelper,

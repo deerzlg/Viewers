@@ -7,7 +7,7 @@ export default function downloadJSONReport(measurementData) {
     return;
   }
 
-  let tempMeasurementData = JSON.parse(JSON.stringify(measurementData)); //deep copy
+  const tempMeasurementData = JSON.parse(JSON.stringify(measurementData)); //deep copy
 
   const downloadedImages = []; //to avoid downloading the same image twice
 
