@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { ServicesManager, Types, MeasurementService } from '@ohif/core';
+import { ServicesManager, Types } from '@ohif/core';
 import { ViewportGrid, ViewportPane, useViewportGrid } from '@ohif/ui';
 import { utils } from '@ohif/core';
 import EmptyViewport from './EmptyViewport';
@@ -21,6 +21,13 @@ const ORIENTATION_MAP = {
     viewPlaneNormal: [0, 1, 0],
     viewUp: [0, 0, 1],
   },
+};
+
+const compareViewportOptions = (opts1, opts2) => {
+  if ((opts1.viewportType || 'stack') != opts2.viewportType) {
+    return false;
+  }
+  return true;
 };
 
 function ViewerViewportGrid(props) {
@@ -92,10 +99,9 @@ function ViewerViewportGrid(props) {
       return {
         displaySetInstanceUIDs: displaySetUIDsToHang,
         displaySetOptions: displaySetUIDsToHangOptions,
-        viewportOptions: hangingProtocolService.getComputedOptions(
-          viewportOptions,
-          displaySetUIDsToHang
-        ),
+        viewportOptions: {
+          ...viewportOptions,
+        },
       };
     };
 
@@ -153,48 +159,76 @@ function ViewerViewportGrid(props) {
 
   useEffect(() => {
     const { unsubscribe } = measurementService.subscribe(
-      MeasurementService.EVENTS.JUMP_TO_MEASUREMENT_LAYOUT,
-      ({ viewportIndex, measurement, isConsumed }) => {
-        if (isConsumed) return;
-        // This occurs when no viewport has elected to consume the event
-        // so we need to change layouts into a layout which can consume
-        // the event.
-        const { displaySetInstanceUID: referencedDisplaySetInstanceUID } =
-          measurement;
+      measurementService.EVENTS.JUMP_TO_MEASUREMENT,
+      ({ viewportIndex, measurement }) => {
+        const {
+          displaySetInstanceUID: referencedDisplaySetInstanceUID,
+          metadata: { viewPlaneNormal },
+        } = measurement;
+
+        // if we already have the displaySet in one of the viewports
+        // Todo: handle fusion display sets?
+        for (const viewport of viewports) {
+          const isMatch = viewport.displaySetInstanceUIDs.includes(
+            referencedDisplaySetInstanceUID
+          );
+          if (isMatch) {
+            return;
+          }
+        }
+
+        const displaySet = displaySetService.getDisplaySetByUID(
+          referencedDisplaySetInstanceUID
+        );
+
+        let imageIndex;
+        // jump straight to the initial image index if we can
+        if (displaySet.images && measurement.SOPInstanceUID) {
+          imageIndex = displaySet.images.findIndex(
+            image => image.SOPInstanceUID === measurement.SOPInstanceUID
+          );
+        }
 
         const updatedViewports = _getUpdatedViewports(
           viewportIndex,
           referencedDisplaySetInstanceUID
         );
-        // Arbitrarily assign the viewport to element 0
-        const viewport = updatedViewports?.[0];
 
-        if (!viewport) {
-          console.warn(
-            'ViewportGrid::Unable to navigate to viewport containing',
-            referencedDisplaySetInstanceUID
-          );
+        if (!updatedViewports || !updatedViewports.length) {
           return;
         }
 
-        viewport.viewportOptions ||= {};
-        viewport.viewportOptions.orientation = 'acquisition';
+        updatedViewports.forEach(vp => {
+          const { orientation, viewportType } = vp.viewportOptions;
+          let initialImageOptions;
 
-        const displaySet = displaySetService.getDisplaySetByUID(
-          referencedDisplaySetInstanceUID
-        );
-        // jump straight to the initial image index if we can
-        if (displaySet.images && measurement.SOPInstanceUID) {
-          for (let index = 0; index < displaySet.images.length; index++) {
-            const image = displaySet.images[index];
-            if (image.SOPInstanceUID === measurement.SOPInstanceUID) {
-              viewport.viewportOptions.initialImageOptions = {
-                index,
+          // For initial imageIndex to hang be careful for the volume viewport
+          if (viewportType === 'stack') {
+            initialImageOptions = {
+              index: imageIndex,
+            };
+          } else if (viewportType === 'volume') {
+            // For the volume viewports, be careful to not jump in the viewports
+            // that are not in the same orientation.
+            // Todo: this doesn't work for viewports that have custom orientation
+            // vectors specified
+            if (
+              orientation &&
+              viewPlaneNormal &&
+              isEqualWithin(
+                ORIENTATION_MAP[orientation]?.viewPlaneNormal,
+                viewPlaneNormal
+              )
+            ) {
+              initialImageOptions = {
+                index: imageIndex,
               };
-              break;
             }
           }
-        }
+
+          vp.viewportOptions['initialImageOptions'] = initialImageOptions;
+        });
+
         viewportGridService.setDisplaySetsForViewports(updatedViewports);
       }
     );

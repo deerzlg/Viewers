@@ -22,8 +22,8 @@ import {
   retrieveStudyMetadata,
   deleteStudyMetadataPromise,
 } from './retrieveStudyMetadata.js';
-import StaticWadoClient from './utils/StaticWadoClient';
-import getDirectURL from '../utils/getDirectURL';
+import StaticWadoClient from './utils/StaticWadoClient.js';
+import getDirectURL from '../utils/getDirectURL.js';
 
 const { DicomMetaDictionary, DicomDict } = dcmjs.data;
 
@@ -61,8 +61,6 @@ function createDicomWebApi(dicomWebConfig, userAuthenticationService) {
     singlepart,
   } = dicomWebConfig;
 
-  const dicomWebConfigCopy = JSON.parse(JSON.stringify(dicomWebConfig));
-
   const qidoConfig = {
     url: qidoRoot,
     staticWado,
@@ -92,9 +90,7 @@ function createDicomWebApi(dicomWebConfig, userAuthenticationService) {
   const implementation = {
     initialize: ({ params, query }) => {
       const { StudyInstanceUIDs: paramsStudyInstanceUIDs } = params;
-      const queryStudyInstanceUIDs = utils.splitComma(
-        query.getAll('StudyInstanceUIDs')
-      );
+      const queryStudyInstanceUIDs = query.getAll('StudyInstanceUIDs');
 
       const StudyInstanceUIDs =
         (queryStudyInstanceUIDs.length && queryStudyInstanceUIDs) ||
@@ -180,17 +176,6 @@ function createDicomWebApi(dicomWebConfig, userAuthenticationService) {
       directURL: params => {
         return getDirectURL(wadoRoot, params);
       },
-      bulkDataURI: async ({ StudyInstanceUID, BulkDataURI }) => {
-        const options = {
-          multipart: false,
-          BulkDataURI,
-          StudyInstanceUID,
-        };
-        return qidoDicomWebClient.retrieveBulkData(options).then(val => {
-          const ret = (val && val[0]) || undefined;
-          return ret;
-        });
-      },
       series: {
         metadata: async ({
           StudyInstanceUID,
@@ -232,47 +217,36 @@ function createDicomWebApi(dicomWebConfig, userAuthenticationService) {
     },
 
     store: {
-      dicom: async (dataset, request) => {
+      dicom: async dataset => {
         const headers = userAuthenticationService.getAuthorizationHeader();
         if (headers) {
           wadoDicomWebClient.headers = headers;
         }
 
-        if (dataset instanceof ArrayBuffer) {
-          const options = {
-            datasets: [dataset],
-            request,
-          };
+        const meta = {
+          FileMetaInformationVersion:
+            dataset._meta.FileMetaInformationVersion.Value,
+          MediaStorageSOPClassUID: dataset.SOPClassUID,
+          MediaStorageSOPInstanceUID: dataset.SOPInstanceUID,
+          TransferSyntaxUID: EXPLICIT_VR_LITTLE_ENDIAN,
+          ImplementationClassUID,
+          ImplementationVersionName,
+        };
 
-          await wadoDicomWebClient.storeInstances(options);
-        } else {
-          const meta = {
-            FileMetaInformationVersion:
-              dataset._meta.FileMetaInformationVersion.Value,
-            MediaStorageSOPClassUID: dataset.SOPClassUID,
-            MediaStorageSOPInstanceUID: dataset.SOPInstanceUID,
-            TransferSyntaxUID: EXPLICIT_VR_LITTLE_ENDIAN,
-            ImplementationClassUID,
-            ImplementationVersionName,
-          };
+        const denaturalized = denaturalizeDataset(meta);
+        const dicomDict = new DicomDict(denaturalized);
 
-          const denaturalized = denaturalizeDataset(meta);
-          const dicomDict = new DicomDict(denaturalized);
+        dicomDict.dict = denaturalizeDataset(dataset);
 
-          dicomDict.dict = denaturalizeDataset(dataset);
+        const part10Buffer = dicomDict.write();
 
-          const part10Buffer = dicomDict.write();
+        const options = {
+          datasets: [part10Buffer],
+        };
 
-          const options = {
-            datasets: [part10Buffer],
-            request,
-          };
-
-          await wadoDicomWebClient.storeInstances(options);
-        }
+        await wadoDicomWebClient.storeInstances(options);
       },
     },
-
     _retrieveSeriesMetadataSync: async (
       StudyInstanceUID,
       filters,
@@ -494,9 +468,6 @@ function createDicomWebApi(dicomWebConfig, userAuthenticationService) {
         config: dicomWebConfig,
       });
       return imageIds;
-    },
-    getConfig() {
-      return dicomWebConfigCopy;
     },
   };
 

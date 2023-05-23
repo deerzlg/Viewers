@@ -307,26 +307,13 @@ export default class DICOMSRDisplayTool extends AnnotationTool {
 
       const ellipsePointsWorld = data;
 
-      const rotation = viewport.getRotation();
-
       canvasCoordinates = ellipsePointsWorld.map(p =>
         viewport.worldToCanvas(p)
       );
-      let canvasCorners;
-      if (rotation == 90 || rotation == 270) {
-        canvasCorners = <Array<Types.Point2>>(
-          utilities.math.ellipse.getCanvasEllipseCorners([
-            canvasCoordinates[2],
-            canvasCoordinates[3],
-            canvasCoordinates[0],
-            canvasCoordinates[1],
-          ])
-        );
-      } else {
-        canvasCorners = <Array<Types.Point2>>(
-          utilities.math.ellipse.getCanvasEllipseCorners(canvasCoordinates)
-        );
-      }
+
+      const canvasCorners = <Array<Types.Point2>>(
+        utilities.math.ellipse.getCanvasEllipseCorners(canvasCoordinates) //get ellipse corners(TopLeft, BottomRight)
+      );
 
       const lineUID = `${index}`;
       drawing.drawEllipse(

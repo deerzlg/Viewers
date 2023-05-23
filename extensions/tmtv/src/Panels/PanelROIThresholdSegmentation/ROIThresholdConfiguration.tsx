@@ -72,9 +72,7 @@ function ROIThresholdConfiguration({ config, dispatch, runCommand }) {
           onChange={e => {
             dispatch({
               type: 'setWeight',
-              payload: {
-                weight: e.target.value,
-              },
+              payload: e.target.value,
             });
           }}
         />

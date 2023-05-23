@@ -1,9 +1,5 @@
 window.config = {
   routerBasename: '/',
-  customizationService: {
-    dicomUploadComponent:
-      '@ohif/extension-cornerstone.customizationModule.cornerstoneDicomUploadComponent',
-  },
   showStudyList: true,
   extensions: [],
   modes: [],
@@ -30,7 +26,6 @@ window.config = {
         requestOptions: {
           auth: 'admin:admin',
         },
-        dicomUploadEnabled: true,
       },
     },
     {

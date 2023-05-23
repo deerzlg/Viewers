@@ -9,10 +9,10 @@ import classNames from 'classnames';
 export type CinePlayerProps = {
   className: string;
   isPlaying: boolean;
-  minFrameRate?: number;
-  maxFrameRate?: number;
-  stepFrameRate?: number;
-  frameRate?: number;
+  minFrameRate: number;
+  maxFrameRate: number;
+  stepFrameRate: number;
+  frameRate: number;
   onFrameRateChange: (value: number) => void;
   onPlayPauseChange: (value: boolean) => void;
   onClose: () => void;
@@ -116,12 +116,12 @@ CinePlayer.defaultProps = {
 
 CinePlayer.propTypes = {
   /** Minimum value for range slider */
-  minFrameRate: PropTypes.number,
+  minFrameRate: PropTypes.number.isRequired,
   /** Maximum value for range slider */
-  maxFrameRate: PropTypes.number,
+  maxFrameRate: PropTypes.number.isRequired,
   /** Increment range slider can "step" in either direction */
-  stepFrameRate: PropTypes.number,
-  frameRate: PropTypes.number,
+  stepFrameRate: PropTypes.number.isRequired,
+  frameRate: PropTypes.number.isRequired,
   /** 'true' if playing, 'false' if paused */
   isPlaying: PropTypes.bool.isRequired,
   onPlayPauseChange: PropTypes.func,

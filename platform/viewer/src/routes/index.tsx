@@ -25,6 +25,12 @@ const bakedInRoutes = [
 
 // NOT FOUND (404)
 const notFoundRoute = { component: NotFound };
+const WorkListRoute = {
+  path: '/',
+  children: DataSourceWrapper,
+  private: true,
+  props: { children: WorkList },
+};
 
 const createRoutes = ({
   modes,
@@ -47,13 +53,6 @@ const createRoutes = ({
     }) || [];
 
   const { customizationService } = servicesManager.services;
-
-  const WorkListRoute = {
-    path: '/',
-    children: DataSourceWrapper,
-    private: true,
-    props: { children: WorkList, servicesManager },
-  };
 
   const customRoutes = customizationService.getGlobalCustomization(
     'customRoutes'

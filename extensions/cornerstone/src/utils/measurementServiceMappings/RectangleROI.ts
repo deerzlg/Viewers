@@ -28,12 +28,15 @@ const RectangleROI = {
       throw new Error('Tool not supported');
     }
 
-    const { SOPInstanceUID, SeriesInstanceUID, StudyInstanceUID } =
-      getSOPInstanceAttributes(
-        referencedImageId,
-        CornerstoneViewportService,
-        viewportId
-      );
+    const {
+      SOPInstanceUID,
+      SeriesInstanceUID,
+      StudyInstanceUID,
+    } = getSOPInstanceAttributes(
+      referencedImageId,
+      CornerstoneViewportService,
+      viewportId
+    );
 
     let displaySet;
 
@@ -103,8 +106,11 @@ function getMappedAnnotations(annotation, DisplaySetService) {
       );
     }
 
-    const { SOPInstanceUID, SeriesInstanceUID, frameNumber } =
-      getSOPInstanceAttributes(referencedImageId);
+    const {
+      SOPInstanceUID,
+      SeriesInstanceUID,
+      frameNumber,
+    } = getSOPInstanceAttributes(referencedImageId);
 
     const displaySet = DisplaySetService.getDisplaySetForSOPInstanceUID(
       SOPInstanceUID,

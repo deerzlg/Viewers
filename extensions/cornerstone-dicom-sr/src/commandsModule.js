@@ -1,6 +1,6 @@
 import { metaData, utilities } from '@cornerstonejs/core';
 
-import OHIF, { DicomMetadataStore } from '@ohif/core';
+import OHIF from '@ohif/core';
 import dcmjs from 'dcmjs';
 import { adaptersSR } from '@cornerstonejs/adapters';
 
@@ -41,6 +41,7 @@ const _generateReport = (
   if (typeof dataset.SpecificCharacterSet === 'undefined') {
     dataset.SpecificCharacterSet = 'ISO_IR 192';
   }
+
   return dataset;
 };
 
@@ -103,29 +104,13 @@ const commandsModule = ({}) => {
           additionalFindingTypes,
           options
         );
-
-        const { StudyInstanceUID, ContentSequence } = naturalizedReport;
-        // The content sequence has 5 or more elements, of which
-        // the `[4]` element contains the annotation data, so this is
-        // checking that there is some annotation data present.
-        if (!ContentSequence?.[4].ContentSequence?.length) {
-          console.log(
-            'naturalizedReport missing imaging content',
-            naturalizedReport
-          );
-          throw new Error('Invalid report, no content');
-        }
+        const { StudyInstanceUID } = naturalizedReport;
 
         await dataSource.store.dicom(naturalizedReport);
 
         if (StudyInstanceUID) {
           dataSource.deleteStudyMetadataPromise(StudyInstanceUID);
         }
-
-        // The "Mode" route listens for DicomMetadataStore changes
-        // When a new instance is added, it listens and
-        // automatically calls makeDisplaySets
-        DicomMetadataStore.addInstances([naturalizedReport], true);
 
         return naturalizedReport;
       } catch (error) {

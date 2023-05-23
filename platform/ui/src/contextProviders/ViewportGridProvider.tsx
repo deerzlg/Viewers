@@ -7,8 +7,8 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash.isequal';
-import { ViewportGridService } from '@ohif/core';
 import viewportLabels from '../utils/viewportLabels';
+import getPresentationIds from './getPresentationIds';
 
 const DEFAULT_STATE = {
   activeViewportIndex: 0,
@@ -173,7 +173,7 @@ export function ViewportGridProvider({ children, service }) {
             displaySetOptions,
             viewportLabel: viewportLabels[viewportIndex],
           };
-          viewportOptions.presentationIds = ViewportGridService.getPresentationIds(
+          viewportOptions.presentationIds = getPresentationIds(
             newViewport,
             viewports
           );
@@ -265,7 +265,7 @@ export function ViewportGridProvider({ children, service }) {
             state.viewports
           );
           if (!viewport.viewportOptions.presentationIds) {
-            viewport.viewportOptions.presentationIds = ViewportGridService.getPresentationIds(
+            viewport.viewportOptions.presentationIds = getPresentationIds(
               viewport,
               viewports
             );
@@ -403,16 +403,12 @@ export function ViewportGridProvider({ children, service }) {
     getNumViewportPanes,
   ]);
 
-  // run many of the calls through the service itself since we want to publish events
   const api = {
     getState,
-    setActiveViewportIndex: index => service.setActiveViewportIndex(index),
-    setDisplaySetsForViewport: props =>
-      service.setDisplaySetsForViewports([props]),
-    setDisplaySetsForViewports: props =>
-      service.setDisplaySetsForViewports(props),
-    setLayout: layout => service.setLayout(layout),
-    reset: () => service.reset(),
+    setActiveViewportIndex: index => service.setActiveViewportIndex(index), // run it through the service itself since we want to publish events
+    setDisplaySetsForViewports,
+    setLayout: layout => service.setLayout(layout), // run it through the service itself since we want to publish events
+    reset,
     set: gridLayoutState => service.setState(gridLayoutState), // run it through the service itself since we want to publish events
     getNumViewportPanes,
   };
@@ -426,7 +422,9 @@ export function ViewportGridProvider({ children, service }) {
 
 ViewportGridProvider.propTypes = {
   children: PropTypes.any,
-  service: PropTypes.instanceOf(ViewportGridService).isRequired,
+  service: PropTypes.shape({
+    setServiceImplementation: PropTypes.func,
+  }).isRequired,
 };
 
 export const useViewportGrid = () => useContext(ViewportGridContext);

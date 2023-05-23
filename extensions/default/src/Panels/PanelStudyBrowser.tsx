@@ -321,7 +321,6 @@ function _mapDisplaySets(displaySets, thumbnailImageSrcMap) {
 const thumbnailNoImageModalities = [
   'SR',
   'SEG',
-  'SM',
   'RTSTRUCT',
   'RTPLAN',
   'RTDOSE',

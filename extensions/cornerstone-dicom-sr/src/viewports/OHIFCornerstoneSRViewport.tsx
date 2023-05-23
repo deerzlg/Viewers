@@ -2,12 +2,17 @@ import PropTypes from 'prop-types';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import OHIF, { utils, ServicesManager, ExtensionManager } from '@ohif/core';
-
 import { setTrackingUniqueIdentifiersForElement } from '../tools/modules/dicomSRModule';
 
-import { Icon, Tooltip, useViewportGrid, ViewportActionBar } from '@ohif/ui';
+import {
+  Icon,
+  Notification,
+  Tooltip,
+  useViewportDialog,
+  useViewportGrid,
+  ViewportActionBar,
+} from '@ohif/ui';
 import hydrateStructuredReport from '../utils/hydrateStructuredReport';
-import createReferencedImageDisplaySet from '../utils/createReferencedImageDisplaySet';
 
 const { formatDate } = utils;
 
@@ -42,6 +47,7 @@ function OHIFCornerstoneSRViewport(props) {
   const srDisplaySet = displaySets[0];
 
   const [viewportGrid, viewportGridService] = useViewportGrid();
+  const [viewportDialogState, viewportDialogApi] = useViewportDialog();
   const [measurementSelected, setMeasurementSelected] = useState(0);
   const [measurementCount, setMeasurementCount] = useState(1);
   const [activeImageDisplaySetData, setActiveImageDisplaySetData] = useState(
@@ -51,6 +57,7 @@ function OHIFCornerstoneSRViewport(props) {
     referencedDisplaySetMetadata,
     setReferencedDisplaySetMetadata,
   ] = useState(null);
+  const [isHydrated, setIsHydrated] = useState(srDisplaySet.isHydrated);
   const [element, setElement] = useState(null);
   const { viewports, activeViewportIndex } = viewportGrid;
 
@@ -80,16 +87,14 @@ function OHIFCornerstoneSRViewport(props) {
         { servicesManager, extensionManager },
         displaySetInstanceUID
       );
-      const displaySets = srDisplaySet.keyImageDisplaySet
-        ? [srDisplaySet.keyImageDisplaySet]
-        : displaySetService.getDisplaySetsForSeries(SeriesInstanceUIDs[0]);
+      const displaySets = displaySetService.getDisplaySetsForSeries(
+        SeriesInstanceUIDs[0]
+      );
       if (displaySets.length) {
-        viewportGridService.setDisplaySetsForViewports([
-          {
-            viewportIndex: activeViewportIndex,
-            displaySetInstanceUIDs: [displaySets[0].displaySetInstanceUID],
-          },
-        ]);
+        viewportGridService.setDisplaySetsForViewport({
+          viewportIndex: activeViewportIndex,
+          displaySetInstanceUIDs: [displaySets[0].displaySetInstanceUID],
+        });
       }
     };
   }
@@ -284,6 +289,8 @@ function OHIFCornerstoneSRViewport(props) {
     if (!srDisplaySet.isLoaded) {
       srDisplaySet.load();
     }
+    setIsHydrated(srDisplaySet.isHydrated);
+
     const numMeasurements = srDisplaySet.measurements.length;
     setMeasurementCount(numMeasurements);
   }, [srDisplaySet]);
@@ -371,7 +378,6 @@ function OHIFCornerstoneSRViewport(props) {
           label: viewportLabel,
           useAltStyling: true,
           studyDate: formatDate(StudyDate),
-          currentSeries: SeriesNumber,
           seriesDescription: SeriesDescription || '',
           patientInformation: {
             patientName: PatientName
@@ -392,6 +398,17 @@ function OHIFCornerstoneSRViewport(props) {
 
       <div className="relative flex flex-row w-full h-full overflow-hidden">
         {getCornerstoneViewport()}
+        <div className="absolute w-full">
+          {viewportDialogState.viewportIndex === viewportIndex && (
+            <Notification
+              message={viewportDialogState.message}
+              type={viewportDialogState.type}
+              actions={viewportDialogState.actions}
+              onSubmit={viewportDialogState.onSubmit}
+              onOutsideClick={viewportDialogState.onOutsideClick}
+            />
+          )}
+        </div>
         {childrenWithProps}
       </div>
     </>
@@ -403,10 +420,8 @@ OHIFCornerstoneSRViewport.propTypes = {
   viewportIndex: PropTypes.number.isRequired,
   dataSource: PropTypes.object,
   children: PropTypes.node,
-  viewportLabel: PropTypes.string,
   customProps: PropTypes.object,
   viewportOptions: PropTypes.object,
-  viewportLabel: PropTypes.string,
   servicesManager: PropTypes.instanceOf(ServicesManager).isRequired,
   extensionManager: PropTypes.instanceOf(ExtensionManager).isRequired,
 };
@@ -420,18 +435,14 @@ async function _getViewportReferencedDisplaySetData(
   measurementSelected,
   displaySetService
 ) {
-  if (!displaySet.keyImageDisplaySet) {
-    // Create a new display set, and preserve a reference to it here,
-    // so that it can be re-displayed and shown inside the SR viewport.
-    // This is only for ease of redisplay - the display set is stored in the
-    // usual manner in the display set service.
-    displaySet.keyImageDisplaySet = createReferencedImageDisplaySet(
-      displaySetService,
-      displaySet
-    );
-  }
+  const { measurements } = displaySet;
+  const measurement = measurements[measurementSelected];
 
-  const referencedDisplaySet = displaySet.keyImageDisplaySet;
+  const { displaySetInstanceUID } = measurement;
+
+  const referencedDisplaySet = displaySetService.getDisplaySetByUID(
+    displaySetInstanceUID
+  );
 
   const image0 = referencedDisplaySet.images[0];
   const referencedDisplaySetMetadata = {

@@ -1,15 +1,11 @@
 import React from 'react';
 import getSopClassHandlerModule from './getSopClassHandlerModule';
-import getHangingProtocolModule, {
-  srProtocol,
-} from './getHangingProtocolModule';
 import onModeEnter from './onModeEnter';
-import getCommandsModule from './commandsModule';
-import preRegistration from './init';
+import commandsModule from './commandsModule';
+import init from './init';
 import { id } from './id.js';
 import toolNames from './tools/toolNames';
 import hydrateStructuredReport from './utils/hydrateStructuredReport';
-import createReferencedImageDisplaySet from './utils/createReferencedImageDisplaySet';
 
 const Component = React.lazy(() => {
   return import(
@@ -35,7 +31,9 @@ const dicomSRExtension = {
   id,
   onModeEnter,
 
-  preRegistration,
+  preRegistration({ servicesManager, configuration = {} }) {
+    init({ servicesManager, configuration });
+  },
 
   /**
    *
@@ -56,9 +54,14 @@ const dicomSRExtension = {
 
     return [{ name: 'dicom-sr', component: ExtendedOHIFCornerstoneSRViewport }];
   },
-  getCommandsModule,
+  getCommandsModule({ servicesManager, commandsManager, extensionManager }) {
+    return commandsModule({
+      servicesManager,
+      commandsManager,
+      extensionManager,
+    });
+  },
   getSopClassHandlerModule,
-  // Include dynmically computed values such as toolNames not known till instantiation
   getUtilityModule({ servicesManager }) {
     return [
       {
@@ -72,6 +75,4 @@ const dicomSRExtension = {
 };
 
 export default dicomSRExtension;
-
-// Put static exports here so they can be type checked
-export { hydrateStructuredReport, createReferencedImageDisplaySet, srProtocol };
+export { hydrateStructuredReport };

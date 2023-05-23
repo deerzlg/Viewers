@@ -21,7 +21,6 @@ function create({
   deleteStudyMetadataPromise,
   getImageIdsForDisplaySet,
   getImageIdsForInstance,
-  getConfig,
 }) {
   const defaultQuery = {
     studies: {
@@ -58,11 +57,6 @@ function create({
   };
 
   const defaultReject = {};
-
-  const defaultGetConfig = () => {
-    return { dicomUploadEnabled: false };
-  };
-
   return {
     query: query || defaultQuery,
     retrieve: retrieve || defaultRetrieve,
@@ -72,7 +66,6 @@ function create({
     deleteStudyMetadataPromise,
     getImageIdsForDisplaySet,
     getImageIdsForInstance,
-    getConfig: getConfig || defaultGetConfig,
   };
 }
 

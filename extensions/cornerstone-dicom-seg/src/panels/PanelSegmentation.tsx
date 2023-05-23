@@ -9,13 +9,20 @@ export default function PanelSegmentation({
   servicesManager,
   commandsManager,
 }) {
-  const { segmentationService, uiDialogService } = servicesManager.services;
+  const {
+    segmentationService,
+    uiDialogService,
+    viewportGridService,
+    toolGroupService,
+    cornerstoneViewportService,
+  } = servicesManager.services;
 
   const { t } = useTranslation('PanelSegmentation');
   const [selectedSegmentationId, setSelectedSegmentationId] = useState(null);
-  const [segmentationConfiguration, setSegmentationConfiguration] = useState(
-    segmentationService.getConfiguration()
-  );
+  const [
+    initialSegmentationConfigurations,
+    setInitialSegmentationConfigurations,
+  ] = useState(segmentationService.getConfiguration());
 
   const [segmentations, setSegmentations] = useState(() =>
     segmentationService.getSegmentations()
@@ -55,7 +62,6 @@ export default function PanelSegmentation({
       const { unsubscribe } = segmentationService.subscribe(evt, () => {
         const segmentations = segmentationService.getSegmentations();
         setSegmentations(segmentations);
-        setSegmentationConfiguration(segmentationService.getConfiguration());
       });
       subscriptions.push(unsubscribe);
     });
@@ -178,7 +184,7 @@ export default function PanelSegmentation({
     segmentationService.toggleSegmentationVisibility(segmentationId);
   };
 
-  const _setSegmentationConfiguration = useCallback(
+  const setSegmentationConfiguration = useCallback(
     (segmentationId, key, value) => {
       segmentationService.setConfiguration({
         segmentationId,
@@ -208,51 +214,54 @@ export default function PanelSegmentation({
           onToggleSegmentVisibility={onToggleSegmentVisibility}
           onToggleSegmentationVisibility={onToggleSegmentationVisibility}
           onToggleMinimizeSegmentation={onToggleMinimizeSegmentation}
-          segmentationConfig={{ initialConfig: segmentationConfiguration }}
+          segmentationConfig={{
+            initialConfig: initialSegmentationConfigurations,
+            usePercentage: true,
+          }}
           setRenderOutline={value =>
-            _setSegmentationConfiguration(
+            setSegmentationConfiguration(
               selectedSegmentationId,
               'renderOutline',
               value
             )
           }
           setOutlineOpacityActive={value =>
-            _setSegmentationConfiguration(
+            setSegmentationConfiguration(
               selectedSegmentationId,
               'outlineOpacity',
               value
             )
           }
           setRenderFill={value =>
-            _setSegmentationConfiguration(
+            setSegmentationConfiguration(
               selectedSegmentationId,
               'renderFill',
               value
             )
           }
           setRenderInactiveSegmentations={value =>
-            _setSegmentationConfiguration(
+            setSegmentationConfiguration(
               selectedSegmentationId,
               'renderInactiveSegmentations',
               value
             )
           }
           setOutlineWidthActive={value =>
-            _setSegmentationConfiguration(
+            setSegmentationConfiguration(
               selectedSegmentationId,
               'outlineWidthActive',
               value
             )
           }
           setFillAlpha={value =>
-            _setSegmentationConfiguration(
+            setSegmentationConfiguration(
               selectedSegmentationId,
               'fillAlpha',
               value
             )
           }
           setFillAlphaInactive={value =>
-            _setSegmentationConfiguration(
+            setSegmentationConfiguration(
               selectedSegmentationId,
               'fillAlphaInactive',
               value

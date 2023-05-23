@@ -14,10 +14,7 @@ const makeDisplaySet = instances => {
   const instance = instances[0];
   const imageSet = new ImageSet(instances);
 
-  const {
-    value: isReconstructable,
-    averageSpacingBetweenFrames,
-  } = isDisplaySetReconstructable(instances);
+  const displayReconstructableInfo = isDisplaySetReconstructable(instances);
 
   // set appropriate attributes to image set...
   imageSet.setAttributes({
@@ -32,11 +29,10 @@ const makeDisplaySet = instances => {
     SeriesDescription: instance.SeriesDescription || '',
     Modality: instance.Modality,
     isMultiFrame: isMultiFrame(instance),
-    countIcon: isReconstructable ? 'icon-mpr' : undefined,
+    countIcon: displayReconstructableInfo.value ? 'icon-mpr' : undefined,
     numImageFrames: instances.length,
     SOPClassHandlerId: `${id}.sopClassHandlerModule.${sopClassHandlerName}`,
-    isReconstructable,
-    averageSpacingBetweenFrames: averageSpacingBetweenFrames || null,
+    isReconstructable: displayReconstructableInfo.value,
   });
 
   // Sort the images in this series if needed

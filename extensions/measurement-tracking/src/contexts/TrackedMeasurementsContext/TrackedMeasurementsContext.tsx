@@ -47,15 +47,6 @@ function TrackedMeasurementsContextProvider(
 
       const uid = trackedMeasurements[0].uid;
 
-      console.log(
-        'jumping to measurement reset viewport',
-        viewportGrid.activeViewportIndex,
-        trackedMeasurements[0]
-      );
-      viewportGridService.setDisplaySetsForViewport({
-        viewportIndex: viewportGrid.activeViewportIndex,
-        displaySetInstanceUIDs: [trackedMeasurements[0].displaySetInstanceUID],
-      });
       measurementService.jumpToMeasurement(
         viewportGrid.activeViewportIndex,
         uid
@@ -157,10 +148,6 @@ function TrackedMeasurementsContextProvider(
       const displaySet = displaySetService.getDisplaySetByUID(
         activeViewport.displaySetInstanceUIDs[0]
       );
-
-      if (!displaySet) {
-        return;
-      }
 
       // If this is an SR produced by our SR SOPClassHandler,
       // and it hasn't been loaded yet, do that now so we

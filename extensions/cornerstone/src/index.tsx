@@ -7,28 +7,26 @@ import {
   imageRetrievalPoolManager,
 } from '@cornerstonejs/core';
 import { Enums as cs3DToolsEnums } from '@cornerstonejs/tools';
-import { ServicesManager, Types } from '@ohif/core';
+import { Types } from '@ohif/core';
 
 import init from './init';
-import getCustomizationModule from './getCustomizationModule';
 import getCommandsModule from './commandsModule';
 import getHangingProtocolModule from './getHangingProtocolModule';
 import ToolGroupService from './services/ToolGroupService';
 import SyncGroupService from './services/SyncGroupService';
 import SegmentationService from './services/SegmentationService';
 import CornerstoneCacheService from './services/CornerstoneCacheService';
-import CornerstoneViewportService from './services/ViewportService/CornerstoneViewportService';
-import * as CornerstoneExtensionTypes from './types';
 
 import { toolNames } from './initCornerstoneTools';
 import { getEnabledElement, reset as enabledElementReset } from './state';
+import CornerstoneViewportService from './services/ViewportService/CornerstoneViewportService';
 import dicomLoaderService from './utils/dicomLoaderService';
 import { registerColormap } from './utils/colormap/transferFunctionHelpers';
 
 import { id } from './id';
 import * as csWADOImageLoader from './initWADOImageLoader.js';
 import { measurementMappingUtils } from './utils/measurementServiceMappings';
-import type { PublicViewportOptions } from './services/ViewportService/Viewport';
+import { PublicViewportOptions } from './services/ViewportService/Viewport';
 
 const Component = React.lazy(() => {
   return import(
@@ -74,11 +72,18 @@ const cornerstoneExtension: Types.Extensions.Extension = {
     props: Types.Extensions.ExtensionParams
   ): Promise<void> {
     const { servicesManager } = props;
-    servicesManager.registerService(CornerstoneViewportService.REGISTRATION);
-    servicesManager.registerService(ToolGroupService.REGISTRATION);
-    servicesManager.registerService(SyncGroupService.REGISTRATION);
-    servicesManager.registerService(SegmentationService.REGISTRATION);
-    servicesManager.registerService(CornerstoneCacheService.REGISTRATION);
+    // Todo: we should be consistent with how services get registered. Use REGISTRATION static method for all
+    servicesManager.registerService(
+      CornerstoneViewportService(servicesManager)
+    );
+    servicesManager.registerService(
+      ToolGroupService.REGISTRATION(servicesManager)
+    );
+    servicesManager.registerService(SyncGroupService(servicesManager));
+    servicesManager.registerService(SegmentationService(servicesManager));
+    servicesManager.registerService(
+      CornerstoneCacheService.REGISTRATION(servicesManager)
+    );
 
     return init.call(this, props);
   },
@@ -94,7 +99,7 @@ const cornerstoneExtension: Types.Extensions.Extension = {
       return (
         <OHIFCornerstoneViewport
           {...props}
-          toolbarService={toolbarService}
+          ToolbarService={toolbarService}
           servicesManager={servicesManager}
           commandsManager={commandsManager}
         />
@@ -109,7 +114,6 @@ const cornerstoneExtension: Types.Extensions.Extension = {
     ];
   },
   getCommandsModule,
-  getCustomizationModule,
   getUtilityModule({ servicesManager }) {
     return [
       {
@@ -141,5 +145,5 @@ const cornerstoneExtension: Types.Extensions.Extension = {
 };
 
 export type { PublicViewportOptions };
-export { measurementMappingUtils, CornerstoneExtensionTypes, toolNames };
+export { measurementMappingUtils };
 export default cornerstoneExtension;

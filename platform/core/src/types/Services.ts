@@ -6,8 +6,6 @@ import {
   ToolbarService,
   DisplaySetService,
   StateSyncService,
-  UINotificationService,
-  UIModalService,
 } from '../services';
 
 /**
@@ -24,8 +22,8 @@ export default interface Services {
   cornerstoneViewportService?: Record<string, unknown>;
   uiDialogService?: Record<string, unknown>;
   toolGroupService?: Record<string, unknown>;
-  uiNotificationService?: UINotificationService;
-  uiModalService?: UIModalService;
+  uiNotificationService?: Record<string, unknown>;
+  uiModalService?: Record<string, unknown>;
   uiViewportDialogService?: Record<string, unknown>;
   viewportGridService?: ViewportGridService;
   syncGroupService?: Record<string, unknown>;

@@ -5,8 +5,6 @@ import 'regenerator-runtime/runtime';
 import App from './App';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { history } from './utils/history';
-
 /**
  * EXTENSIONS AND MODES
  * =================
@@ -36,5 +34,3 @@ loadDynamicImports().then(() => {
     ReactDOM.render(app, document.getElementById('root'));
   });
 });
-
-export { history };

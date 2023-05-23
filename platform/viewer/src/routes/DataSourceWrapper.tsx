@@ -56,14 +56,13 @@ function DataSourceWrapper(props) {
   // But only for LayoutTemplate type of 'list'?
   // Or no data fetching here, and just hand down my source
   const STUDIES_LIMIT = 101;
-  const DEFAULT_DATA = {
+  const [data, setData] = useState({
     studies: [],
     total: 0,
     resultsPerPage: 25,
     pageNumber: 1,
     location: 'Not a valid location, causes first load to occur',
-  };
-  const [data, setData] = useState(DEFAULT_DATA);
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -126,8 +125,6 @@ function DataSourceWrapper(props) {
       dataTotal={data.total}
       dataSource={dataSource}
       isLoadingData={isLoading}
-      // To refresh the data, simply reset it to DEFAULT_DATA which invalidates it and triggers a new query to fetch the data.
-      onRefresh={() => setData(DEFAULT_DATA)}
     />
   );
 }

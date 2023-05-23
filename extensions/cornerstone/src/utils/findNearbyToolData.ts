@@ -11,7 +11,7 @@ export const findNearbyToolData = (commandsManager, evt) => {
   }
   const { element, currentPoints } = evt.detail;
   return commandsManager.runCommand(
-    'getNearbyAnnotation',
+    'getNearbyToolData',
     {
       element,
       canvasCoordinates: currentPoints?.canvas,

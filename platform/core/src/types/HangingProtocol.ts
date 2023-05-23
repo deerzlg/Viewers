@@ -70,8 +70,8 @@ export type ConstraintValue =
   | boolean
   | []
   | {
-      value: string | number | boolean | [];
-    };
+    value: string | number | boolean | [];
+  };
 
 export type Constraint = {
   // This value exactly
@@ -135,27 +135,19 @@ export type SyncGroup = {
   target?: boolean;
 };
 
-/** Declares a custom option, that is a computed type value */
-export type CustomOptionAttribute<T> = {
-  custom: string;
-  defaultValue?: T;
-};
-
-export type CustomOption<T> = CustomOptionAttribute<T> | T;
-
 export type initialImageOptions = {
   index?: number;
   preset?: string; // todo: type more
 };
 
 export type ViewportOptions = {
-  toolGroupId?: CustomOption<string>;
-  viewportType?: CustomOption<string>;
+  toolGroupId?: string;
+  viewportType?: string;
   id?: string;
-  orientation?: CustomOption<string>;
+  orientation?: string;
   viewportId?: string;
-  initialImageOptions?: CustomOption<initialImageOptions>;
-  syncGroups?: CustomOption<SyncGroup>[];
+  initialImageOptions?: initialImageOptions;
+  syncGroups?: SyncGroup[];
   customViewportProps?: Record<string, unknown>;
   // Set to true to allow non-matching drag and drop or options provided
   // from options.displaySetSelectorsMap

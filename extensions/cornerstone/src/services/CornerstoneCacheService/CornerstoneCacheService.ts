@@ -1,10 +1,5 @@
-import { ServicesManager, Types } from '@ohif/core';
-import {
-  cache as cs3DCache,
-  Enums,
-  volumeLoader,
-  utilities as utils,
-} from '@cornerstonejs/core';
+import { ServicesManager } from '@ohif/core';
+import { cache as cs3DCache, Enums, volumeLoader } from '@cornerstonejs/core';
 
 import getCornerstoneViewportType from '../../utils/getCornerstoneViewportType';
 import {
@@ -15,21 +10,20 @@ import {
 const VOLUME_LOADER_SCHEME = 'cornerstoneStreamingImageVolume';
 
 class CornerstoneCacheService {
-  static REGISTRATION = {
-    name: 'cornerstoneCacheService',
-    altName: 'CornerstoneCacheService',
-    create: ({
-      servicesManager,
-    }: Types.Extensions.ExtensionParams): CornerstoneCacheService => {
-      return new CornerstoneCacheService(servicesManager);
-    },
+  static REGISTRATION = (serviceManager: ServicesManager) => {
+    return {
+      name: 'cornerstoneCacheService',
+      altName: 'CornerstoneCacheService',
+      create: ({ configuration = {} }) => {
+        return new CornerstoneCacheService(serviceManager);
+      },
+    };
   };
 
   stackImageIds: Map<string, string[]> = new Map();
   volumeImageIds: Map<string, string[]> = new Map();
-  readonly servicesManager: ServicesManager;
 
-  constructor(servicesManager: ServicesManager) {
+  constructor(servicesManager) {
     this.servicesManager = servicesManager;
   }
 
@@ -96,10 +90,7 @@ class CornerstoneCacheService {
     displaySetService
   ) {
     if (viewportData.viewportType === Enums.ViewportType.STACK) {
-      return this._getCornerstoneStackImageIds(
-        displaySetService.getDisplaySetByUID(invalidatedDisplaySetInstanceUID),
-        dataSource
-      );
+      throw new Error('Invalidation of StackViewport is not supported yet');
     }
 
     // Todo: grab the volume and get the id from the viewport itself
@@ -109,7 +100,6 @@ class CornerstoneCacheService {
 
     if (volume) {
       cs3DCache.removeVolumeLoadObject(volumeId);
-      this.volumeImageIds.delete(volumeId);
     }
 
     const displaySets = viewportData.data.map(({ displaySetInstanceUID }) =>
@@ -143,18 +133,13 @@ class CornerstoneCacheService {
       this.stackImageIds.set(displaySet.displaySetInstanceUID, stackImageIds);
     }
 
-    const {
-      displaySetInstanceUID,
-      StudyInstanceUID,
-      isCompositeStack,
-    } = displaySet;
+    const { displaySetInstanceUID, StudyInstanceUID } = displaySet;
 
     const StackViewportData: StackViewportData = {
       viewportType,
       data: {
         StudyInstanceUID,
         displaySetInstanceUID,
-        isCompositeStack,
         imageIds: stackImageIds,
       },
     };

@@ -133,6 +133,7 @@ function modeFactory() {
       const {
         toolGroupService,
         syncGroupService,
+        toolbarService,
         segmentationService,
         cornerstoneViewportService,
       } = servicesManager.services;

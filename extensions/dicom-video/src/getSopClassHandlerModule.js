@@ -70,7 +70,7 @@ const _getDisplaySetsFromSeries = (
           singlepart: 'video',
           tag: 'PixelData',
         }),
-        instances: [instance],
+        others: [instance],
         thumbnailSrc: dataSource.retrieve.directURL({
           instance,
           defaultPath: '/thumbnail',

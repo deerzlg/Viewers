@@ -32,7 +32,6 @@ function initDefaultToolGroup(
       { toolName: toolNames.Bidirectional },
       { toolName: toolNames.DragProbe },
       { toolName: toolNames.EllipticalROI },
-      { toolName: toolNames.CircleROI },
       { toolName: toolNames.RectangleROI },
       { toolName: toolNames.StackScroll },
       { toolName: toolNames.Angle },
@@ -111,7 +110,6 @@ function initSRToolGroup(extensionManager, toolGroupService, commandsManager) {
       { toolName: SRToolNames.SRArrowAnnotate },
       { toolName: SRToolNames.SRBidirectional },
       { toolName: SRToolNames.SREllipticalROI },
-      { toolName: SRToolNames.SRCircleROI },
     ],
     enabled: [
       {
@@ -172,7 +170,6 @@ function initMPRToolGroup(extensionManager, toolGroupService, commandsManager) {
       { toolName: toolNames.Bidirectional },
       { toolName: toolNames.DragProbe },
       { toolName: toolNames.EllipticalROI },
-      { toolName: toolNames.CircleROI },
       { toolName: toolNames.RectangleROI },
       { toolName: toolNames.StackScroll },
       { toolName: toolNames.Angle },

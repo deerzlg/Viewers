@@ -1,7 +1,8 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Icon } from '@ohif/ui';
-import ProgressLoadingBar from '../ProgressLoadingBar';
+
+import './LoadingIndicatorProgress.css';
 
 /**
  *  A React component that renders a loading indicator.
@@ -18,8 +19,18 @@ function LoadingIndicatorProgress({ className, textBlock, progress }) {
       )}
     >
       <Icon name="loading-ohif-mark" className="text-white w-12 h-12" />
-      <div className="w-48">
-        <ProgressLoadingBar></ProgressLoadingBar>
+      <div className="loading">
+        {progress === undefined || progress === null ? (
+          <div className="infinite-loading-bar bg-primary-light"></div>
+        ) : (
+          <div
+            className="bg-primary-light"
+            style={{
+              width: `${progress}%`,
+              height: '8px',
+            }}
+          ></div>
+        )}
       </div>
       {textBlock}
     </div>

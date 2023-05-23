@@ -81,7 +81,6 @@ function modeFactory({ modeConfiguration }) {
           { toolName: toolNames.Bidirectional },
           { toolName: toolNames.Probe },
           { toolName: toolNames.EllipticalROI },
-          { toolName: toolNames.CircleROI },
           { toolName: toolNames.RectangleROI },
           { toolName: toolNames.StackScroll },
           { toolName: toolNames.CalibrationLine },
@@ -135,8 +134,11 @@ function modeFactory({ modeConfiguration }) {
       ]);
     },
     onModeExit: ({ servicesManager }) => {
-      const { toolGroupService, measurementService, toolbarService } =
-        servicesManager.services;
+      const {
+        toolGroupService,
+        measurementService,
+        toolbarService,
+      } = servicesManager.services;
 
       toolGroupService.destroy();
     },

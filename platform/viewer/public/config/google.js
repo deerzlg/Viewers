@@ -1,9 +1,5 @@
 window.config = {
   routerBasename: '/',
-  customizationService: {
-    dicomUploadComponent:
-      '@ohif/extension-cornerstone.customizationModule.cornerstoneDicomUploadComponent',
-  },
   enableGoogleCloudAdapter: false,
   // below flag is for performance reasons, but it might not work for all servers
   omitQuotationForMultipartRequest: true,
@@ -54,7 +50,6 @@ window.config = {
         enableStudyLazyLoad: true,
         supportsFuzzyMatching: true,
         supportsWildcard: false,
-        dicomUploadEnabled: true,
       },
     },
     {

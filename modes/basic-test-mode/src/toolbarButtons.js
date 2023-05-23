@@ -200,29 +200,6 @@ const toolbarButtons = [
           ],
           'Ellipse Tool'
         ),
-        _createToolButton(
-          'CircleROI',
-          'tool-circle',
-          'Circle',
-          [
-            {
-              commandName: 'setToolActive',
-              commandOptions: {
-                toolName: 'CircleROI',
-              },
-              context: 'CORNERSTONE',
-            },
-            {
-              commandName: 'setToolActive',
-              commandOptions: {
-                toolName: 'SRCircleROI',
-                toolGroupId: 'SRToolGroup',
-              },
-              context: 'CORNERSTONE',
-            },
-          ],
-          'Circle Tool'
-        ),
       ],
     },
   },
@@ -357,7 +334,7 @@ const toolbarButtons = [
             {
               commandName: 'setHangingProtocol',
               commandOptions: {
-                protocolId: '@ohif/mnGrid',
+                protocolId: '@ohif/hp-extension.mn',
                 stageId: '2x2',
               },
               context: 'DEFAULT',
@@ -372,7 +349,7 @@ const toolbarButtons = [
             {
               commandName: 'setHangingProtocol',
               commandOptions: {
-                protocolId: '@ohif/mnGrid',
+                protocolId: '@ohif/hp-extension.mn',
                 stageId: '3x1',
               },
               context: 'DEFAULT',
@@ -387,7 +364,7 @@ const toolbarButtons = [
             {
               commandName: 'setHangingProtocol',
               commandOptions: {
-                protocolId: '@ohif/mnGrid',
+                protocolId: '@ohif/hp-extension.mn',
                 stageId: '2x1',
               },
               context: 'DEFAULT',
@@ -402,7 +379,7 @@ const toolbarButtons = [
             {
               commandName: 'setHangingProtocol',
               commandOptions: {
-                protocolId: '@ohif/mnGrid',
+                protocolId: '@ohif/hp-extension.mn',
                 stageId: '1x1',
               },
               context: 'DEFAULT',

@@ -11,8 +11,6 @@ import findViewportsByPosition, {
 } from './findViewportsByPosition';
 
 import { ContextMenuProps } from './CustomizeableContextMenu/types';
-import { NavigateHistory } from './types/commandModuleTypes';
-import { history } from '@ohif/viewer';
 
 import { Types, utilities as csUtils } from '@cornerstonejs/core';
 import { drawing, utilities } from '@cornerstonejs/tools';
@@ -178,7 +176,7 @@ const commandsModule = ({
       reset = false,
     }: HangingProtocolParams): boolean => {
       try {
-        // Stores in the state the display set selector id to displaySetUID mapping
+        // Stores in the state the reuseID to displaySetUID mapping
         // Pass in viewportId for the active viewport.  This item will get set as
         // the activeViewportId
         const state = viewportGridService.getState();
@@ -249,12 +247,6 @@ const commandsModule = ({
           }
         }
         // Do this after successfully applying the update
-        // Note, don't store the active display set - it is only needed while
-        // changing display sets.  This causes jump to measurement to fail on
-        // multi-study display.
-        delete displaySetSelectorMap[
-          `${activeStudyUID || hpInfo.activeStudyUID}:activeDisplaySet:0`
-        ];
         stateSyncService.store(stateSyncReduce);
         // This is a default action applied
         actions.toggleHpTools(hangingProtocolService.getActiveProtocol());
@@ -493,28 +485,6 @@ const commandsModule = ({
       }
     },
 
-    /**
-     * Exposes the browser history navigation used by OHIF. This command can be used to either replace or
-     * push a new entry into the browser history. For example, the following will replace the current
-     * browser history entry with the specified relative URL which changes the study displayed to the
-     * study with study instance UID 1.2.3. Note that as a result of using `options.replace = true`, the
-     * page prior to invoking this command cannot be returned to via the browser back button.
-     *
-     * navigateHistory({
-     *   to: 'viewer?StudyInstanceUIDs=1.2.3',
-     *   options: { replace: true },
-     * });
-     *
-     * @param historyArgs - arguments for the history function;
-     *                      the `to` property is the URL;
-     *                      the `options.replace` is a boolean indicating if the current browser history entry
-     *                      should be replaced or a new entry pushed onto the history (stack); the default value
-     *                      for `replace` is false
-     */
-    navigateHistory(historyArgs: NavigateHistory) {
-      history.navigate(historyArgs.to, historyArgs.options);
-    },
-
     openDICOMTagViewer() {
       const { activeViewportIndex, viewports } = viewportGridService.getState();
       const activeViewportSpecificData = viewports[activeViewportIndex];
@@ -708,11 +678,6 @@ const commandsModule = ({
     },
     toggleHangingProtocol: {
       commandFn: actions.toggleHangingProtocol,
-      storeContexts: [],
-      options: {},
-    },
-    navigateHistory: {
-      commandFn: actions.navigateHistory,
       storeContexts: [],
       options: {},
     },

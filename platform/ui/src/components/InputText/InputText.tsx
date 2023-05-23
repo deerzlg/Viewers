@@ -21,7 +21,7 @@ const InputText = ({
     >
       <Input
         id={id}
-        className="mt-2"
+        className="border-primary-main mt-2 bg-black"
         type="text"
         containerClassName="mr-2"
         value={value}
@@ -36,7 +36,7 @@ const InputText = ({
 InputText.defaultProps = {
   value: '',
   isSortable: false,
-  onLabelClick: () => { },
+  onLabelClick: () => {},
   sortDirection: 'none',
 };
 
